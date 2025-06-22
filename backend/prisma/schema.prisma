@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Hotel {
+  id             String   @id @default(cuid())
+  name           String
+  currency       String
+  amenities      String   // JSON string of amenities array
+  ratingOverall  Float    @default(0)
+  ratingLocation Float    @default(0)
+  rooms          Room[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("hotels")
+}
+
+model Room {
+  id        String       @id @default(cuid())
+  hotelId   String
+  name      String
+  occupancy Int
+  prices    DailyPrice[]
+  hotel     Hotel        @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("rooms")
+}
+
+model DailyPrice {
+  id                String   @id @default(cuid())
+  roomId            String
+  checkInDate       DateTime
+  price             Float
+  available         Boolean  @default(false)
+  refundable        Boolean  @default(false)
+  breakfastIncluded Boolean  @default(false)
+  scrapedAt         DateTime @default(now())
+  room              Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("daily_prices")
+} 
